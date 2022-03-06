@@ -47,7 +47,7 @@ MessageId& MessageId::operator=(const MessageId& m) {
 MessageId::MessageId(int32_t partition, int64_t ledgerId, int64_t entryId, int32_t batchIndex)
     : impl_(std::make_shared<MessageIdImpl>(partition, ledgerId, entryId, batchIndex)) {}
 
-MessageId::MessageId(MessageIdImpl firstChunkMsgId, MessageIdImpl lastChunkMsgId) {
+MessageId::MessageId(MessageIdImpl& firstChunkMsgId, MessageIdImpl& lastChunkMsgId) {
     impl_ = std::make_shared<ChunkMessageIdImpl>(firstChunkMsgId, lastChunkMsgId)
                                                             ->getLastChunkMessageIdImpl();
 }
@@ -101,8 +101,20 @@ int32_t MessageId::batchIndex() const { return impl_->batchIndex_; }
 int32_t MessageId::partition() const { return impl_->partition_; }
 
 PULSAR_PUBLIC std::ostream& operator<<(std::ostream& s, const pulsar::MessageId& messageId) {
-    s << '(' << messageId.impl_->ledgerId_ << ',' << messageId.impl_->entryId_ << ','
-      << messageId.impl_->partition_ << ',' << messageId.impl_->batchIndex_ << ')';
+    std::function<void(std::ostream&, const MessageIdImplPtr)> printMsgIdImpl 
+                                                = [](std::ostream& s, const MessageIdImplPtr impl){
+        s << '(' << impl->ledgerId_ << ',' << impl->entryId_ << ','
+          << impl->partition_ << ',' << impl->batchIndex_ << ')';
+    };
+    if (messageId.isChunkMessageid() == false){
+        printMsgIdImpl(s, messageId.impl_);
+    }
+    else {
+        auto firstMessageidImpl = std::dynamic_pointer_cast<ChunkMessageIdImpl>(messageId.impl_);
+        printMsgIdImpl(s, firstMessageidImpl);
+        s << "->";
+        printMsgIdImpl(s, messageId.impl_);
+    }
     return s;
 }
 

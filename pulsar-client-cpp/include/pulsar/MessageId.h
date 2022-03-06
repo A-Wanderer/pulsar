@@ -51,7 +51,7 @@ class PULSAR_PUBLIC MessageId {
      * @param firstChunkMsgId the first MessageId
      * @param lastChunkMsgId the last MessageId
      */
-    explicit MessageId(MessageIdImpl firstChunkMsgId, MessageIdImpl lastChunkMsgId);
+    explicit MessageId(MessageIdImpl& firstChunkMsgId, MessageIdImpl& lastChunkMsgId);
 
     /**
      * MessageId representing the "earliest" or "oldest available" message stored in the topic
