@@ -20,8 +20,10 @@
 #include <pulsar/defines.h>
 #include <pulsar/MessageId.h>
 
-#include "PulsarApi.pb.h"
 #include "MessageIdImpl.h"
+#include "ChunkMessageIdImpl.h"
+#include "PulsarApi.pb.h"
+#include "MessageIdUtil.h"
 
 #include <iostream>
 #include <limits>
@@ -45,6 +47,11 @@ MessageId& MessageId::operator=(const MessageId& m) {
 MessageId::MessageId(int32_t partition, int64_t ledgerId, int64_t entryId, int32_t batchIndex)
     : impl_(std::make_shared<MessageIdImpl>(partition, ledgerId, entryId, batchIndex)) {}
 
+MessageId::MessageId(MessageIdImpl firstChunkMsgId, MessageIdImpl lastChunkMsgId) {
+    impl_ = std::make_shared<ChunkMessageIdImpl>(firstChunkMsgId, lastChunkMsgId)
+                                                            ->getLastChunkMessageIdImpl();
+}
+
 const MessageId& MessageId::earliest() {
     static const MessageId _earliest(-1, -1, -1, -1);
     return _earliest;
@@ -56,18 +63,20 @@ const MessageId& MessageId::latest() {
     return _latest;
 }
 
+bool MessageId::isChunkMessageid() const{
+    if (std::dynamic_pointer_cast<ChunkMessageIdImpl>(impl_) != nullptr) {
+        return true;
+    }
+    return false;
+}
+
 void MessageId::serialize(std::string& result) const {
     proto::MessageIdData idData;
-    idData.set_ledgerid(impl_->ledgerId_);
-    idData.set_entryid(impl_->entryId_);
-    if (impl_->partition_ != -1) {
-        idData.set_partition(impl_->partition_);
+    writeMessageIdData(impl_, &idData);
+    if (isChunkMessageid() == true) {
+        auto chunkMsgIdImpl = std::dynamic_pointer_cast<ChunkMessageIdImpl>(impl_);
+        writeMessageIdData(chunkMsgIdImpl->getFirstChunkMessageIdImpl(), idData.mutable_first_chunk_message_id());
     }
-
-    if (impl_->batchIndex_ != -1) {
-        idData.set_batch_index(impl_->batchIndex_);
-    }
-
     idData.SerializeToString(&result);
 }
 

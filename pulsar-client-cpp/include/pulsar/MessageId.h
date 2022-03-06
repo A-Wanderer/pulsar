@@ -28,6 +28,7 @@
 namespace pulsar {
 
 class MessageIdImpl;
+typedef std::shared_ptr<MessageIdImpl> MessageIdImplPtr;
 
 class PULSAR_PUBLIC MessageId {
    public:
@@ -45,6 +46,14 @@ class PULSAR_PUBLIC MessageId {
     explicit MessageId(int32_t partition, int64_t ledgerId, int64_t entryId, int32_t batchIndex);
 
     /**
+     * Construct the MessageId with chunk message id
+     *
+     * @param firstChunkMsgId the first MessageId
+     * @param lastChunkMsgId the last MessageId
+     */
+    explicit MessageId(MessageIdImpl firstChunkMsgId, MessageIdImpl lastChunkMsgId);
+
+    /**
      * MessageId representing the "earliest" or "oldest available" message stored in the topic
      */
     static const MessageId& earliest();
@@ -55,7 +64,12 @@ class PULSAR_PUBLIC MessageId {
     static const MessageId& latest();
 
     /**
-     * Serialize the message id into a binary string for storing
+     * return is this a chunk message id;
+     */
+    bool isChunkMessageid() const;
+
+    /**
+     * Serialize the message id into a binary string for string
      */
     void serialize(std::string& result) const;
 
