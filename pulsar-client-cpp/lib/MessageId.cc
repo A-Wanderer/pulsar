@@ -88,7 +88,12 @@ MessageId MessageId::deserialize(const std::string& serializedMessageId) {
     if (!idData.ParseFromString(serializedMessageId)) {
         throw std::invalid_argument("Failed to parse serialized message id");
     }
-
+    if (idData.has_first_chunk_message_id()) {
+        auto firData = idData.first_chunk_message_id();
+        MessageIdImpl firMsgIdImpl(firData.partition(), firData.ledgerid(), firData.entryid(), firData.batch_index());
+        MessageIdImpl lastMsgIdImpl(idData.partition(), idData.ledgerid(), idData.entryid(), idData.batch_index());
+        return MessageId(firMsgIdImpl, lastMsgIdImpl);
+    }
     return MessageId(idData.partition(), idData.ledgerid(), idData.entryid(), idData.batch_index());
 }
 
