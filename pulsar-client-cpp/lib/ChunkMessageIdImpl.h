@@ -21,6 +21,7 @@
 
 #include <cstdint>
 #include <memory>
+#include "MessageIdImpl.h"
 
 namespace pulsar {
 
@@ -29,7 +30,7 @@ typedef std::shared_ptr<MessageIdImpl> MessageIdImplPtr;
 
 class ChunkMessageIdImpl: public MessageIdImpl, public std::enable_shared_from_this<ChunkMessageIdImpl> {
    public:
-    ChunkMessageIdImpl(MessageIdImpl firstChunkMsgId, MessageIdImpl lastChunkMsgId):
+    ChunkMessageIdImpl(MessageIdImpl& firstChunkMsgId, MessageIdImpl& lastChunkMsgId):
         MessageIdImpl(lastChunkMsgId.ledgerId_, lastChunkMsgId.entryId_, lastChunkMsgId.partition_, lastChunkMsgId.batchIndex_) {
         firstChunkMsgId_ = std::make_shared<MessageIdImpl>(
                            firstChunkMsgId.ledgerId_, firstChunkMsgId.entryId_, firstChunkMsgId.partition_, firstChunkMsgId.batchIndex_);
