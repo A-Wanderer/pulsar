@@ -46,12 +46,10 @@ class PULSAR_PUBLIC MessageId {
     explicit MessageId(int32_t partition, int64_t ledgerId, int64_t entryId, int32_t batchIndex);
 
     /**
-     * Construct the MessageId with chunk message id
-     *
-     * @param firstChunkMsgId the first MessageId
-     * @param lastChunkMsgId the last MessageId
+     * Construct the ChunkMessageId with first and last message id's param
      */
-    explicit MessageId(MessageIdImpl& firstChunkMsgId, MessageIdImpl& lastChunkMsgId);
+    explicit MessageId(int32_t firstPartition, int64_t firstLedgerId, int64_t firstEntryId, int32_t firstBatchIndex,
+                     int32_t lastPartition, int64_t lastLedgerId, int64_t lastEntryId, int32_t lastBatchIndex);
 
     /**
      * MessageId representing the "earliest" or "oldest available" message stored in the topic

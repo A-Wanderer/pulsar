@@ -31,9 +31,16 @@ typedef std::shared_ptr<MessageIdImpl> MessageIdImplPtr;
 class ChunkMessageIdImpl: public MessageIdImpl, public std::enable_shared_from_this<ChunkMessageIdImpl> {
    public:
     ChunkMessageIdImpl(MessageIdImpl& firstChunkMsgId, MessageIdImpl& lastChunkMsgId):
-        MessageIdImpl(lastChunkMsgId.ledgerId_, lastChunkMsgId.entryId_, lastChunkMsgId.partition_, lastChunkMsgId.batchIndex_) {
+        MessageIdImpl(lastChunkMsgId.partition_, lastChunkMsgId.ledgerId_, lastChunkMsgId.entryId_, lastChunkMsgId.batchIndex_) {
         firstChunkMsgId_ = std::make_shared<MessageIdImpl>(
-                           firstChunkMsgId.ledgerId_, firstChunkMsgId.entryId_, firstChunkMsgId.partition_, firstChunkMsgId.batchIndex_);
+                           firstChunkMsgId.partition_, firstChunkMsgId.ledgerId_, firstChunkMsgId.entryId_, firstChunkMsgId.batchIndex_);
+    }
+
+    ChunkMessageIdImpl(int32_t firstPartition, int64_t firstLedgerId, int64_t firstEntryId, int32_t firstBatchIndex,
+                       int32_t lastPartition, int64_t lastLedgerId, int64_t lastEntryId, int32_t lastBatchIndex):
+        MessageIdImpl(lastPartition, lastLedgerId, lastEntryId, lastBatchIndex) {
+        firstChunkMsgId_ = std::make_shared<MessageIdImpl>(
+                           firstPartition, firstLedgerId, firstEntryId, firstBatchIndex);
     }
    
     MessageIdImplPtr getFirstChunkMessageIdImpl() {

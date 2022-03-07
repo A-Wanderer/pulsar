@@ -47,8 +47,10 @@ MessageId& MessageId::operator=(const MessageId& m) {
 MessageId::MessageId(int32_t partition, int64_t ledgerId, int64_t entryId, int32_t batchIndex)
     : impl_(std::make_shared<MessageIdImpl>(partition, ledgerId, entryId, batchIndex)) {}
 
-MessageId::MessageId(MessageIdImpl& firstChunkMsgId, MessageIdImpl& lastChunkMsgId) {
-    impl_ = std::make_shared<ChunkMessageIdImpl>(firstChunkMsgId, lastChunkMsgId)
+MessageId::MessageId(int32_t firstPartition, int64_t firstLedgerId, int64_t firstEntryId, int32_t firstBatchIndex,
+                     int32_t lastPartition, int64_t lastLedgerId, int64_t lastEntryId, int32_t lastBatchIndex) {
+    impl_ = std::make_shared<ChunkMessageIdImpl>(firstPartition, firstLedgerId, firstEntryId, firstBatchIndex,
+                                                 lastPartition, lastLedgerId, lastEntryId, lastBatchIndex)
                                                             ->getLastChunkMessageIdImpl();
 }
 
@@ -90,9 +92,8 @@ MessageId MessageId::deserialize(const std::string& serializedMessageId) {
     }
     if (idData.has_first_chunk_message_id()) {
         auto firData = idData.first_chunk_message_id();
-        MessageIdImpl firMsgIdImpl(firData.partition(), firData.ledgerid(), firData.entryid(), firData.batch_index());
-        MessageIdImpl lastMsgIdImpl(idData.partition(), idData.ledgerid(), idData.entryid(), idData.batch_index());
-        return MessageId(firMsgIdImpl, lastMsgIdImpl);
+        return MessageId(firData.partition(), firData.ledgerid(), firData.entryid(), firData.batch_index(),
+                         idData.partition(), idData.ledgerid(), idData.entryid(), idData.batch_index());
     }
     return MessageId(idData.partition(), idData.ledgerid(), idData.entryid(), idData.batch_index());
 }
