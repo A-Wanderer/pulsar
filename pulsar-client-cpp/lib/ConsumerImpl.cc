@@ -423,11 +423,11 @@ void ConsumerImpl::messageReceived(const ClientConnectionPtr& cnx, const proto::
             LOG_DEBUG("Chunked message completed chunkId: " << metadata.chunk_id() << ", ChunkedMessageCtx: " << chunkedMsgCtx
                                                     << ", sequenceId: " << metadata.sequence_id());
             if (chunkedMsgCtx.numChunks() > 0) {
-                auto firstMsgIdImpl = chunkedMsgCtx.getChunkedMessageIds()[0].impl_;
-                auto lastMsgIdImpl = chunkedMsgCtx.getChunkedMessageIds()[chunkedMsgCtx.numChunks() - 1].impl_;
+                auto firstMsgIdImplPtr = chunkedMsgCtx.getChunkedMessageIds()[0].impl_;
+                auto lastMsgIdImplPtr = chunkedMsgCtx.getChunkedMessageIds()[chunkedMsgCtx.numChunks() - 1].impl_;
                 chunkMessageId = std::make_shared<MessageId>
-                            (firstMsgIdImpl->partition_, firstMsgIdImpl->ledgerId_, firstMsgIdImpl->entryId_, -1,
-                             lastMsgIdImpl->partition_, lastMsgIdImpl->ledgerId_, lastMsgIdImpl->entryId_, -1);
+                            (firstMsgIdImplPtr->partition_, firstMsgIdImplPtr->ledgerId_, firstMsgIdImplPtr->entryId_, -1,
+                             lastMsgIdImplPtr->partition_, lastMsgIdImplPtr->ledgerId_, lastMsgIdImplPtr->entryId_, -1);
             }
             chunkedMessageCache_.remove(metadata.uuid());
             payload = optionalPayload.value();

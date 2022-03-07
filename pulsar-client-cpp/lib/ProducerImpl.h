@@ -87,23 +87,6 @@ class ProducerImpl : public HandlerBase,
 
     static int getNumOfChunks(uint32_t size, uint32_t maxMessageSize);
 
-    class ChunkedMessageCtx {
-       public:
-        ChunkedMessageCtx(MessageIdImplPtr firstChunkMessageId, MessageIdImplPtr lastChunkMessageId) :
-                                    firstChunkMessageId_(firstChunkMessageId), lastChunkMessageId_(lastChunkMessageId) {}
-
-        MessageIdImplPtr getChunkMessageId() {
-            return std::make_shared<ChunkMessageIdImpl>(*firstChunkMessageId_, *lastChunkMessageId_)
-                                                                            ->getLastChunkMessageIdImpl();
-        }
-
-        friend class ProducerImpl;
-
-        MessageIdImplPtr firstChunkMessageId_;
-
-        MessageIdImplPtr lastChunkMessageId_;
-    };
-
    protected:
     ProducerStatsBasePtr producerStatsBasePtr_;
 
